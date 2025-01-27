@@ -1,84 +1,147 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, List
+
+import attrs
+
 from .table import TableError
 
+if TYPE_CHECKING:
+    from ..table import Row
 
+
+@attrs.define(kw_only=True, repr=False)
 class RowError(TableError):
-    """Row error representation
+    """Row error representation.
 
-    Parameters:
-        descriptor? (str|dict): error descriptor
-        note (str): an error note
-        row_number (int): row number
-        row_position (int): row position
-
-    Raises:
-        FrictionlessException: raise any error that occurs during the process
+    A base class for all the errors related to a row of the
+    tabular data.
 
     """
 
-    code = "row-error"
-    name = "Row Error"
-    tags = ["#table", "#row"]
-    template = "Row Error"
+    type = "row-error"
+    title = "Row Error"
     description = "Row Error"
+    template = "Row Error"
+    tags = ["#table", "#row"]
 
-    def __init__(self, descriptor=None, *, note, cells, row_number, row_position):
-        self.setinitial("cells", cells)
-        self.setinitial("rowNumber", row_number)
-        self.setinitial("rowPosition", row_position)
-        super().__init__(descriptor, note=note)
+    cells: List[str]
+    """
+    Values of all the cells in the row that has an error.
+    """
 
-    # Create
+    row_number: int
+    """
+    Index of the row that has an error.
+    """
+
+    # Convert
 
     @classmethod
-    def from_row(cls, row, *, note):
-        """Create an error from a row
-
-        Parameters:
-            row (Row): row
-            note (str): note
-
-        Returns:
-            RowError: error
-        """
-        to_str = lambda v: str(v) if v is not None else ""
+    def from_row(cls, row: Row, *, note: str):
+        """Create an error from a row"""
+        to_str = lambda v: str(v) if v is not None else ""  # type: ignore
         return cls(
             note=note,
-            cells=list(map(to_str, row.cells)),
+            cells=list(map(to_str, row.cells)),  # type: ignore
             row_number=row.row_number,
-            row_position=row.row_position,
         )
+
+    # Metadata
+
+    metadata_profile_patch = {
+        "properties": {
+            "cells": {"type": "array", "items": {"type": "string"}},
+            "rowNumber": {"type": "integer"},
+        },
+    }
 
 
 class BlankRowError(RowError):
-    code = "blank-row"
-    name = "Blank Row"
-    template = 'Row at position "{rowPosition}" is completely blank'
+    type = "blank-row"
+    title = "Blank Row"
     description = "This row is empty. A row should contain at least one value."
+    template = 'Row at position "{rowNumber}" is completely blank'
 
 
 class PrimaryKeyError(RowError):
-    code = "primary-key-error"
-    name = "PrimaryKey Error"
-    template = 'Row at position "{rowPosition}" violates the primary key: {note}'
+    type = "primary-key"
+    title = "PrimaryKey Error"
     description = "Values in the primary key fields should be unique for every row"
+    template = 'Row at position "{rowNumber}" violates the primary key: {note}'
 
 
+@attrs.define(kw_only=True)
 class ForeignKeyError(RowError):
-    code = "foreign-key-error"
-    name = "ForeignKey Error"
-    template = 'Row at position "{rowPosition}" violates the foreign key: {note}'
+    type = "foreign-key"
+    title = "ForeignKey Error"
     description = "Values in the foreign key fields should exist in the reference table"
+    template = 'Row at position "{rowNumber}" violates the foreign key: {note}'
+
+    field_names: List[str]
+    """
+    Keys in the resource target column.
+    """
+
+    field_cells: List[str]
+    """
+    Cells not found in the lookup table.
+    """
+
+    reference_name: str
+    """
+    Name of the lookup table the keys were searched on
+    """
+
+    reference_field_names: List[str]
+    """
+    Key names in the lookup table defined as foreign keys in the resource.
+    """
+
+    @classmethod
+    def from_row(  # type: ignore
+        cls,
+        row: Row,
+        *,
+        note: str,
+        field_names: List[str],  # type: ignore
+        field_values: List[Any],  # type: ignore
+        reference_name: str,  # type: ignore
+        reference_field_names: List[str],  # type: ignore
+    ):
+        """Create an foreign-key-error from a row"""
+        to_str = lambda v: str(v) if v is not None else ""  # type: ignore
+        return cls(
+            note=note,
+            cells=list(map(to_str, row.cells)),  # type: ignore
+            row_number=row.row_number,
+            field_names=field_names,
+            field_cells=list(map(to_str, field_values)),  # type: ignore
+            reference_name=reference_name,
+            reference_field_names=reference_field_names,
+        )
+
+    # Metadata
+
+    metadata_profile_patch = {
+        "properties": {
+            "fieldNames": {"type": "array", "items": {"type": "string"}},
+            "fieldCells": {"type": "array", "items": {"type": "string"}},
+            "referenceName": {"type": "string"},
+            "referenceFieldNames": {"type": "array", "items": {"type": "string"}},
+        },
+    }
 
 
 class DuplicateRowError(RowError):
-    code = "duplicate-row"
-    name = "Duplicate Row"
-    template = "Row at position {rowPosition} is duplicated: {note}"
+    type = "duplicate-row"
+    title = "Duplicate Row"
     description = "The row is duplicated."
+    template = "Row at position {rowNumber} is duplicated: {note}"
 
 
 class RowConstraintError(RowError):
-    code = "row-constraint"
-    name = "Row Constraint"
-    template = "The row at position {rowPosition} has an error: {note}"
+    type = "row-constraint"
+    title = "Row Constraint"
     description = "The value does not conform to the row constraint."
+    template = "The row at position {rowNumber} has an error: {note}"

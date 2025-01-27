@@ -1,20 +1,28 @@
-from ..check import Check
-from .. import errors
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Iterable
+
+import attrs
+
+from .. import errors, helpers
+from ..checklist import Check
+from ..platform import platform
+
+if TYPE_CHECKING:
+    from ..error import Error
+    from ..resource import Resource
+    from ..table import Row
 
 
+@attrs.define(kw_only=True, repr=False)
 class baseline(Check):
     """Check a table for basic errors
 
-    API      | Usage
-    -------- | --------
-    Public   | `from frictionless import checks`
-    Implicit | `validate(...)`
-
-    Ths check is enabled by default for any `validate` function run.
+    This check is enabled by default for any `validate` function run.
 
     """
 
-    code = "baseline"
+    type = "baseline"
     Errors = [
         # File
         errors.HashCountError,
@@ -42,67 +50,54 @@ class baseline(Check):
         errors.UniqueError,
     ]
 
-    def __init__(self, descriptor=None, *, stats=None):
-        self.setinitial("stats", stats)
-        super().__init__(descriptor)
+    # Connect
+
+    def connect(self, resource: Resource):
+        super().connect(resource)
 
     # Validate
 
-    def validate_start(self):
-        if self.resource.tabular:
+    def validate_start(self) -> Iterable[Error]:
+        if isinstance(self.resource, platform.frictionless_resources.TableResource):
             empty = not (self.resource.labels or self.resource.fragment)
             yield from [errors.SourceError(note="the source is empty")] if empty else []
-            yield from self.resource.header.errors
+            yield from self.resource.header.errors  # type: ignore
         yield from []
 
-    def validate_row(self, row):
-        yield from row.errors
+    def validate_row(self, row: Row) -> Iterable[Error]:
+        yield from row.errors  # type: ignore
 
-    def validate_end(self):
-        stats = self.get("stats", {})
-
+    def validate_end(self) -> Iterable[Error]:
         # Hash
-        if stats.get("hash"):
-            hashing = self.resource.hashing
-            if stats["hash"] != self.resource.stats["hash"]:
-                note = 'expected %s is "%s" and actual is "%s"'
-                note = note % (hashing, stats["hash"], self.resource.stats["hash"])
+        if self.resource.hash:
+            algorithm, expected = helpers.parse_resource_hash_v1(self.resource.hash)
+            actual = None
+            if algorithm == "md5":
+                actual = self.resource.stats.md5
+            elif algorithm == "sha256":
+                actual = self.resource.stats.sha256
+            if actual and actual != expected:
+                note = 'expected is "%s" and actual is "%s"'
+                note = note % (expected, actual)
                 yield errors.HashCountError(note=note)
 
         # Bytes
-        if stats.get("bytes"):
-            if stats["bytes"] != self.resource.stats["bytes"]:
+        if self.resource.bytes:
+            if self.resource.bytes != self.resource.stats.bytes:
                 note = 'expected is "%s" and actual is "%s"'
-                note = note % (stats["bytes"], self.resource.stats["bytes"])
+                note = note % (self.resource.bytes, self.resource.stats.bytes)
                 yield errors.ByteCountError(note=note)
 
         # Fields
-        if stats.get("fields"):
-            if stats["fields"] != self.resource.stats["fields"]:
+        if self.resource.fields:
+            if self.resource.fields != self.resource.stats.fields:
                 note = 'expected is "%s" and actual is "%s"'
-                note = note % (stats["fields"], self.resource.stats["fields"])
+                note = note % (self.resource.fields, self.resource.stats.fields)
                 yield errors.FieldCountError(note=note)
 
         # Rows
-        if stats.get("rows"):
-            if stats["rows"] != self.resource.stats["rows"]:
+        if self.resource.rows:
+            if self.resource.rows != self.resource.stats.rows:
                 note = 'expected is "%s" and actual is "%s"'
-                note = note % (stats["rows"], self.resource.stats["rows"])
+                note = note % (self.resource.rows, self.resource.stats.rows)
                 yield errors.RowCountError(note=note)
-
-    # Metadata
-
-    metadata_profile = {  # type: ignore
-        "type": "object",
-        "properties": {
-            "stats": {
-                "type": "object",
-                "properties": {
-                    "hash": {"type": "string"},
-                    "bytes": {"type": "number"},
-                    "fields": {"type": "number"},
-                    "rows": {"type": "number"},
-                },
-            }
-        },
-    }

@@ -1,13 +1,17 @@
-# Frictionless Framework
+# frictionless-py
 
-[![Build](https://img.shields.io/github/workflow/status/frictionlessdata/frictionless-py/general/main)](https://github.com/frictionlessdata/frictionless-py/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/frictionlessdata/frictionless-py/general.yaml?branch=main)](https://github.com/frictionlessdata/frictionless-py/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/frictionlessdata/frictionless-py/main)](https://codecov.io/gh/frictionlessdata/frictionless-py)
 [![Release](https://img.shields.io/pypi/v/frictionless.svg)](https://pypi.python.org/pypi/frictionless)
 [![Citation](https://zenodo.org/badge/28409905.svg)](https://zenodo.org/badge/latestdoi/28409905)
 [![Codebase](https://img.shields.io/badge/codebase-github-brightgreen)](https://github.com/frictionlessdata/frictionless-py)
-[![Support](https://img.shields.io/badge/support-discord-brightgreen)](https://discordapp.com/invite/Sewv6av)
+[![Support](https://img.shields.io/badge/support-slack-brightgreen)](https://join.slack.com/t/frictionlessdata/shared_invite/zt-17kpbffnm-tRfDW_wJgOw8tJVLvZTrBg)
 
-Data management framework for Python that provides functionality to describe, extract, validate, and transform tabular data (DEVT Framework). It supports a great deal of data schemes and formats, as well as provides popular platforms integrations. The framework is powered by the lightweight yet comprehensive [Frictionless Data Specifications](https://specs.frictionlessdata.io/).
+```markdown remark type=primary
+Migrating from an older version? Please read **[v5](blog/2022/08-22-frictionless-framework-v5.html)** announcement and migration guide.
+```
+
+Data management framework for Python that provides functionality to describe, extract, validate, and transform tabular data (DEVT Framework). It supports a great deal of data sources and formats, as well as provides popular platforms integrations. The framework is powered by the lightweight yet comprehensive [Frictionless Standards](https://specs.frictionlessdata.io/).
 
 ## Purpose
 
@@ -26,8 +30,13 @@ Data management framework for Python that provides functionality to describe, ex
 - Support for compressed files
 - Custom checks and formats
 - Fully pluggable architecture
-- The included API server
 - More than 1000+ tests
+
+## Installation
+
+```bash
+$ pip install frictionless
+```
 
 ## Example
 
@@ -51,4 +60,3 @@ $ frictionless validate data/invalid.csv
 
 Please visit our documentation portal:
 - https://framework.frictionlessdata.io
-

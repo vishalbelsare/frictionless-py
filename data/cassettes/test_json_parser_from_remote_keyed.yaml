@@ -5,7 +5,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       User-Agent:
@@ -15,9 +15,8 @@ interactions:
     uri: https://raw.githubusercontent.com/frictionlessdata/frictionless-py/master/data/table.keyed.json
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAA4vmUgCCajAJAkqZKUpWCoY6CIG8xNxUoJBSal56TmZxhhJYphaiAF2fERZ9T3as
-        fTp775Ndu6A6uWK5AHnGtDp1AAAA
+      string: "[\n    {\n        \"id\": 1,\n        \"name\": \"english\"\n    },\n
+        \   {\n        \"id\": 2,\n        \"name\": \"\u4E2D\u56FD\u4EBA\"\n    }\n]\n"
     headers:
       Accept-Ranges:
       - bytes
@@ -35,18 +34,20 @@ interactions:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
       Content-Type:
       - text/plain; charset=utf-8
+      Cross-Origin-Resource-Policy:
+      - cross-origin
       Date:
-      - Tue, 09 Feb 2021 08:51:20 GMT
+      - Wed, 24 Jan 2024 11:45:20 GMT
       ETag:
       - W/"6f3db326388b97300ef06688ba9a05ac48b9af407f4cea02dee6a3c83568b3cb"
       Expires:
-      - Tue, 09 Feb 2021 08:56:20 GMT
+      - Wed, 24 Jan 2024 11:50:20 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
       - max-age=31536000
       Vary:
-      - Authorization,Accept-Encoding, Accept-Encoding
+      - Authorization,Accept-Encoding,Origin
       Via:
       - 1.1 varnish
       X-Cache:
@@ -56,15 +57,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 1029338b296b80a88d3362fb1aeed69ba65db63b
+      - c49d000b5d6fa00b4fc9a6aa4a83e3012cd44471
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - BED0:571D:4D13:8184:60224D08
+      - E5B8:24EB47:869138:8C63B8:65B0F84F
       X-Served-By:
-      - cache-fra19129-FRA
+      - cache-lis1490034-LIS
       X-Timer:
-      - S1612860681.846251,VS0,VE152
+      - S1706096721.665797,VS0,VE233
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -76,7 +77,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       User-Agent:
@@ -86,9 +87,8 @@ interactions:
     uri: https://raw.githubusercontent.com/frictionlessdata/frictionless-py/master/data/table.keyed.json
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAA4vmUgCCajAJAkqZKUpWCoY6CIG8xNxUoJBSal56TmZxhhJYphaiAF2fERZ9T3as
-        fTp775Ndu6A6uWK5AHnGtDp1AAAA
+      string: "[\n    {\n        \"id\": 1,\n        \"name\": \"english\"\n    },\n
+        \   {\n        \"id\": 2,\n        \"name\": \"\u4E2D\u56FD\u4EBA\"\n    }\n]\n"
     headers:
       Accept-Ranges:
       - bytes
@@ -106,18 +106,20 @@ interactions:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
       Content-Type:
       - text/plain; charset=utf-8
+      Cross-Origin-Resource-Policy:
+      - cross-origin
       Date:
-      - Tue, 09 Feb 2021 08:51:21 GMT
+      - Wed, 24 Jan 2024 11:45:21 GMT
       ETag:
       - W/"6f3db326388b97300ef06688ba9a05ac48b9af407f4cea02dee6a3c83568b3cb"
       Expires:
-      - Tue, 09 Feb 2021 08:56:21 GMT
+      - Wed, 24 Jan 2024 11:50:21 GMT
       Source-Age:
-      - '1'
+      - '0'
       Strict-Transport-Security:
       - max-age=31536000
       Vary:
-      - Authorization,Accept-Encoding, Accept-Encoding
+      - Authorization,Accept-Encoding,Origin
       Via:
       - 1.1 varnish
       X-Cache:
@@ -127,15 +129,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - fa43fdd71e4b6c2742dcddbc525a449c69c035f4
+      - 93be298034e5b7a1ac96f6adafe5ade1aae342eb
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - BED0:571D:4D13:8184:60224D08
+      - E5B8:24EB47:869138:8C63B8:65B0F84F
       X-Served-By:
-      - cache-fra19124-FRA
+      - cache-lis1490031-LIS
       X-Timer:
-      - S1612860682.860700,VS0,VE1
+      - S1706096721.176954,VS0,VE1
       X-XSS-Protection:
       - 1; mode=block
     status:

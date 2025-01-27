@@ -1,47 +1,31 @@
-import os
+from __future__ import annotations
+
 import json
-import gzip
-import zipfile
+import os
 
+# Version
 
-# Helpers
-
-
-def read_asset(*paths, encoding="utf-8"):
-    dirname = os.path.dirname(__file__)
-    with open(os.path.join(dirname, "assets", *paths), encoding=encoding) as file:
-        return file.read().strip()
-
+VERSION = "5.18.0"
 
 # General
 
-
 UNDEFINED = object()
-VERSION = read_asset("VERSION")
-COMPRESSION_FORMATS = ["zip", "gz"]
-INQUIRY_PROFILE = json.loads(read_asset("profiles", "inquiry.json"))
-PIPELINE_PROFILE = json.loads(read_asset("profiles", "pipeline.json"))
-REPORT_PROFILE = json.loads(read_asset("profiles", "report.json"))
-STATUS_PROFILE = json.loads(read_asset("profiles", "status.json"))
-SCHEMA_PROFILE = json.loads(read_asset("profiles", "schema", "general.json"))
-RESOURCE_PROFILE = json.loads(read_asset("profiles", "resource", "general.json"))
-TABULAR_RESOURCE_PROFILE = json.loads(read_asset("profiles", "resource", "tabular.json"))
-PACKAGE_PROFILE = json.loads(read_asset("profiles", "package", "general.json"))
-FISCAL_PACKAGE_PROFILE = json.loads(read_asset("profiles", "package", "fiscal.json"))
-TABULAR_PACKAGE_PROFILE = json.loads(read_asset("profiles", "package", "tabular.json"))
-GEOJSON_PROFILE = json.loads(read_asset("profiles", "geojson", "general.json"))
-TOPOJSON_PROFILE = json.loads(read_asset("profiles", "geojson", "topojson.json"))
-
+NAME_PATTERN = "^([-a-z0-9._/])+$"
+TYPE_PATTERN = "^([-a-z/])+$"
+PACKAGE_PATH = "datapackage.json"
+COMPRESSION_FORMATS = ["zip", "gz", "bz2", "xz"]
 
 # Defaults
 
-
-DEFAULT_SCHEME = "file"
-DEFAULT_FORMAT = "csv"
-DEFAULT_HASHING = "md5"
+DEFAULT_STANDARDS = "v2"
+DEFAULT_TYPE = "file"
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_INNERPATH = ""
+DEFAULT_PACKAGE_INNERPATH = "datapackage.json"
 DEFAULT_COMPRESSION = ""
+DEFAULT_BASEPATH = ""
+DEFAULT_TRUSTED = False
+DEFAULT_ONERROR = "ignore"
 DEFAULT_HEADER = True
 DEFAULT_HEADER_ROWS = [1]
 DEFAULT_HEADER_JOIN = " "
@@ -57,6 +41,9 @@ DEFAULT_FIELD_CONFIDENCE = 0.9
 DEFAULT_PACKAGE_PROFILE = "data-package"
 DEFAULT_RESOURCE_PROFILE = "data-resource"
 DEFAULT_TABULAR_RESOURCE_PROFILE = "tabular-data-resource"
+DEFAULT_FIELD_TYPE = "any"
+DEFAULT_FIELD_TYPE_SPECS_V1 = "string"
+DEFAULT_FIELD_FORMAT = "default"
 DEFAULT_TRUE_VALUES = ["true", "True", "TRUE", "1"]
 DEFAULT_FALSE_VALUES = ["false", "False", "FALSE", "0"]
 DEFAULT_DATETIME_PATTERN = "%Y-%m-%dT%H:%M:%S%z"
@@ -66,8 +53,14 @@ DEFAULT_BARE_NUMBER = True
 DEFAULT_FLOAT_NUMBER = False
 DEFAULT_GROUP_CHAR = ""
 DEFAULT_DECIMAL_CHAR = "."
-DEFAULT_SERVER_PORT = 8000
-DEFAULT_CANDIDATES = [
+DEFAULT_HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/54.0.2840.87 Safari/537.36"
+    )
+}
+DEFAULT_FIELD_CANDIDATES = [
     {"type": "yearmonth"},
     {"type": "geopoint"},
     {"type": "duration"},
@@ -84,13 +77,77 @@ DEFAULT_CANDIDATES = [
     {"type": "string"},
 ]
 
+# Entities
 
-# Backports
+METADATA_TRAITS = {
+    "catalog": {
+        "names": ["catalog.json", "catalog.yaml"],
+        "props": ["packages"],
+    },
+    "chart": {
+        "names": ["chart.json", "chart.yaml"],
+        "props": ["layers", "mark"],
+    },
+    "package": {
+        "names": [
+            "datapackage.json",
+            "datapackage.yaml",
+            ".package.json",
+            ".package.yaml",
+        ],
+        "props": ["resources"],
+    },
+    "resource": {
+        "names": ["resource.json", "resource.yaml"],
+        "props": ["path", "data"],
+    },
+    "dialect": {
+        "names": ["dialect.json", "dialect.yaml"],
+        # TODO: remove csv/json/excel after #1506
+        "props": ["header", "headerRows", "csv", "json", "excel"],
+    },
+    "jsonschema": {
+        "names": ["jsonschema.json", "jsonschema.yaml"],
+        "props": ["$schema"],
+    },
+    "schema": {
+        "names": ["schema.json", "schema.yaml"],
+        "props": ["fields"],
+    },
+    "checklist": {
+        "names": ["checklist.json", "checklist.yaml"],
+        "props": ["checks"],
+    },
+    "pipeline": {
+        "names": ["pipeline.json", "pipeline.yaml"],
+        "props": ["steps"],
+    },
+    "report": {
+        "names": ["report.json", "report.yaml"],
+        "props": ["errors"],
+    },
+    "inquiry": {
+        "names": ["inquiry.json", "inquiry.yaml"],
+        "props": ["tasks"],
+    },
+    "view": {
+        "names": ["view.json", "view.yaml"],
+        "props": ["query"],
+    },
+    "map": {
+        "names": ["map.json", "map.yaml"],
+        "props": ["features", "objects"],
+    },
+}
+
+# Profiles
 
 
-# It can be removed after dropping support for Python 3.6 and Python 3.7
-COMPRESSION_EXCEPTIONS = (
-    (zipfile.BadZipFile, gzip.BadGzipFile)
-    if hasattr(gzip, "BadGzipFile")
-    else (zipfile.BadZipFile)
-)
+def read(*paths: str, encoding: str = "utf-8"):
+    dirname = os.path.dirname(__file__)
+    with open(os.path.join(dirname, *paths), encoding=encoding) as file:
+        return file.read().strip()
+
+
+GEOJSON_PROFILE = json.loads(read("assets", "profiles", "geojson.json"))
+TOPOJSON_PROFILE = json.loads(read("assets", "profiles", "topojson.json"))
